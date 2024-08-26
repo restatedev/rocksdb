@@ -241,9 +241,6 @@ struct rocksdb_column_family_metadata_t {
 struct rocksdb_export_import_files_metadata_t {
   ExportImportFilesMetaData* rep;
 };
-struct rocksdb_live_file_metadata_t {
-  LiveFileMetaData* rep;
-};
 struct rocksdb_import_column_family_options_t {
   ImportColumnFamilyOptions rep;
 };
@@ -5962,6 +5959,8 @@ void rocksdb_export_import_files_metadata_destroy(
   delete metadata->rep;
   delete metadata;
 }
+
+/* Transactions */
 
 rocksdb_transactiondb_options_t* rocksdb_transactiondb_options_create() {
   return new rocksdb_transactiondb_options_t;

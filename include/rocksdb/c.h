@@ -115,7 +115,6 @@ typedef struct rocksdb_livefiles_t rocksdb_livefiles_t;
 typedef struct rocksdb_column_family_handle_t rocksdb_column_family_handle_t;
 typedef struct rocksdb_column_family_metadata_t
     rocksdb_column_family_metadata_t;
-typedef struct rocksdb_live_file_metadata_t rocksdb_live_file_metadata_t;
 typedef struct rocksdb_import_column_family_options_t
     rocksdb_import_column_family_options_t;
 typedef struct rocksdb_export_import_files_metadata_t
