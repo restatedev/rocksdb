@@ -1234,6 +1234,7 @@ int main(int argc, char** argv) {
     CheckCondition(count == 3);
     size_t size;
     char* value;
+    rocksdb_pinnableslice_t* p;
     value = rocksdb_writebatch_wi_get_from_batch(wbi, options, "box", 3, &size,
                                                  &err);
     CheckValue(err, "c", &value, size);
@@ -1243,8 +1244,16 @@ int main(int argc, char** argv) {
     value = rocksdb_writebatch_wi_get_from_batch_and_db(wbi, db, roptions,
                                                         "foo", 3, &size, &err);
     CheckValue(err, "hello", &value, size);
+    p = rocksdb_writebatch_wi_get_pinned_from_batch_and_db(wbi, db, roptions,
+                                                           "foo", 3, &err);
+    value = rocksdb_pinnableslice_value(p, &size);
+    CheckValue(err, "hello", &value, size);
     value = rocksdb_writebatch_wi_get_from_batch_and_db(wbi, db, roptions,
                                                         "box", 3, &size, &err);
+    CheckValue(err, "c", &value, size);
+    p = rocksdb_writebatch_wi_get_pinned_from_batch_and_db(wbi, db, roptions,
+                                                           "box", 3, &err);
+    value = rocksdb_pinnableslice_value(p, &size);
     CheckValue(err, "c", &value, size);
     rocksdb_write_writebatch_wi(db, woptions, wbi, &err);
     CheckNoError(err);
