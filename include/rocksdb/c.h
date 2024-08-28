@@ -2582,6 +2582,7 @@ extern ROCKSDB_LIBRARY_API rocksdb_livefiles_t*
 rocksdb_export_import_files_metadata_get_files(
     rocksdb_export_import_files_metadata_t*);
 
+// Takes ownership of the rocksdb_livefiles_t being added.
 extern ROCKSDB_LIBRARY_API void rocksdb_export_import_files_metadata_set_files(
     rocksdb_export_import_files_metadata_t*, rocksdb_livefiles_t*);
 
