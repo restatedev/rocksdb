@@ -2509,21 +2509,33 @@ extern ROCKSDB_LIBRARY_API void rocksdb_livefiles_destroy(
     const rocksdb_livefiles_t*);
 
 extern ROCKSDB_LIBRARY_API rocksdb_livefile_t* rocksdb_livefile_create();
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_column_family_name(rocksdb_livefile_t*, const char*);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_level(rocksdb_livefile_t*, int);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_name(rocksdb_livefile_t*, const char*);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_directory(rocksdb_livefile_t*, const char*);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_size(rocksdb_livefile_t*, size_t);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_smallest_key(rocksdb_livefile_t*, const char*, size_t);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_largest_key(rocksdb_livefile_t*, const char*, size_t);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_smallest_seqno(rocksdb_livefile_t*, uint64_t);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_largest_seqno(rocksdb_livefile_t*, uint64_t);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_num_entries(rocksdb_livefile_t*, uint64_t);
-extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_num_deletions(rocksdb_livefile_t*, uint64_t);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_column_family_name(
+    rocksdb_livefile_t*, const char*);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_level(
+    rocksdb_livefile_t*, int);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_name(
+    rocksdb_livefile_t*, const char*);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_directory(
+rocksdb_livefile_t*, const char*);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_size(
+    rocksdb_livefile_t*, size_t);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_smallest_key(
+    rocksdb_livefile_t*, const char*, size_t);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_largest_key(
+    rocksdb_livefile_t*, const char*, size_t);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_smallest_seqno(
+    rocksdb_livefile_t*, uint64_t);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_largest_seqno(
+    rocksdb_livefile_t*, uint64_t);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_num_entries(
+    rocksdb_livefile_t*, uint64_t);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefile_set_num_deletions(
+    rocksdb_livefile_t*, uint64_t);
 extern ROCKSDB_LIBRARY_API void rocksdb_livefile_destroy(rocksdb_livefile_t*);
 
 // Takes ownership of the livefile being added.
-extern ROCKSDB_LIBRARY_API void rocksdb_livefiles_add(rocksdb_livefiles_t*, rocksdb_livefile_t*);
+extern ROCKSDB_LIBRARY_API void rocksdb_livefiles_add(rocksdb_livefiles_t*,
+    rocksdb_livefile_t*);
 
 /* Utility Helpers */
 

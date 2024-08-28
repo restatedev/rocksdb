@@ -5798,7 +5798,8 @@ rocksdb_livefile_t* rocksdb_livefile_create() {
   return new rocksdb_livefile_t;
 }
 
-void rocksdb_livefile_set_column_family_name(rocksdb_livefile_t* lf, const char* column_family_name) {
+void rocksdb_livefile_set_column_family_name(rocksdb_livefile_t* lf,
+                                             const char* column_family_name) {
   lf->rep.column_family_name = std::string(column_family_name);
 }
 
@@ -5810,36 +5811,45 @@ void rocksdb_livefile_set_name(rocksdb_livefile_t* lf, const char* name) {
   lf->rep.name = std::string(name);
 }
 
-void rocksdb_livefile_set_directory(rocksdb_livefile_t* lf, const char* directory) {
+void rocksdb_livefile_set_directory(rocksdb_livefile_t* lf,
+                                    const char* directory) {
   lf->rep.directory = std::string(directory);
-  lf->rep.db_path = std::string(directory); // deprecated but necessary
+  lf->rep.db_path = std::string(directory); // deprecated but still needed
 }
 
 void rocksdb_livefile_set_size(rocksdb_livefile_t* lf, size_t size) {
   lf->rep.size = size;
 }
 
-void rocksdb_livefile_set_smallest_key(rocksdb_livefile_t* lf, const char* smallest_key, size_t smallest_key_len) {
+void rocksdb_livefile_set_smallest_key(rocksdb_livefile_t* lf,
+                                       const char* smallest_key,
+                                       size_t smallest_key_len) {
   lf->rep.smallestkey = std::string(smallest_key, smallest_key_len);
 }
 
-void rocksdb_livefile_set_largest_key(rocksdb_livefile_t* lf, const char* largest_key, size_t largest_key_len) {
+void rocksdb_livefile_set_largest_key(rocksdb_livefile_t* lf,
+                                      const char* largest_key,
+                                      size_t largest_key_len) {
   lf->rep.largestkey = std::string(largest_key, largest_key_len);
 }
 
-void rocksdb_livefile_set_smallest_seqno(rocksdb_livefile_t* lf, uint64_t smallest_seqno) {
+void rocksdb_livefile_set_smallest_seqno(rocksdb_livefile_t* lf,
+                                         uint64_t smallest_seqno) {
   lf->rep.smallest_seqno = smallest_seqno;
 }
 
-void rocksdb_livefile_set_largest_seqno(rocksdb_livefile_t* lf, uint64_t largest_seqno) {
+void rocksdb_livefile_set_largest_seqno(rocksdb_livefile_t* lf,
+                                        uint64_t largest_seqno) {
   lf->rep.largest_seqno = largest_seqno;
 }
 
-void rocksdb_livefile_set_num_entries(rocksdb_livefile_t* lf, uint64_t num_entries) {
+void rocksdb_livefile_set_num_entries(rocksdb_livefile_t* lf,
+                                      uint64_t num_entries) {
   lf->rep.num_entries = num_entries;
 }
 
-void rocksdb_livefile_set_num_deletions(rocksdb_livefile_t* lf, uint64_t num_deletions) {
+void rocksdb_livefile_set_num_deletions(rocksdb_livefile_t* lf,
+                                        uint64_t num_deletions) {
   lf->rep.num_deletions = num_deletions;
 }
 
@@ -5847,7 +5857,8 @@ void rocksdb_livefile_destroy(rocksdb_livefile_t* lf) {
   delete lf;
 }
 
-void rocksdb_livefiles_add(rocksdb_livefiles_t* lf, rocksdb_livefile_t* livefile) {
+void rocksdb_livefiles_add(rocksdb_livefiles_t* lf,
+                           rocksdb_livefile_t* livefile) {
   lf->rep.push_back(std::move(livefile->rep));
   delete livefile;
 }
