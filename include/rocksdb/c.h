@@ -85,6 +85,7 @@ typedef struct rocksdb_compactionfiltercontext_t
 typedef struct rocksdb_compactionfilterfactory_t
     rocksdb_compactionfilterfactory_t;
 typedef struct rocksdb_comparator_t rocksdb_comparator_t;
+typedef struct rocksdb_event_listener_t rocksdb_event_listener_t;
 typedef struct rocksdb_dbpath_t rocksdb_dbpath_t;
 typedef struct rocksdb_env_t rocksdb_env_t;
 typedef struct rocksdb_fifo_compaction_options_t
@@ -1221,6 +1222,43 @@ extern ROCKSDB_LIBRARY_API void rocksdb_options_set_comparator(
     rocksdb_options_t*, rocksdb_comparator_t*);
 extern ROCKSDB_LIBRARY_API void rocksdb_options_set_merge_operator(
     rocksdb_options_t*, rocksdb_mergeoperator_t*);
+
+/* Event Listener */
+
+typedef struct rocksdb_flushjobinfo_t rocksdb_flushjobinfo_t;
+typedef int rocksdb_flushreason_t;
+
+extern ROCKSDB_LIBRARY_API rocksdb_event_listener_t*
+rocksdb_event_listener_create(void*, void (*destructor_)(void*));
+
+// Takes ownership of the provided rocksdb_event_listener_t
+extern ROCKSDB_LIBRARY_API void rocksdb_options_add_event_listener(
+    rocksdb_options_t* options, rocksdb_event_listener_t* event_listener);
+
+extern ROCKSDB_LIBRARY_API void rocksdb_event_listener_destroy(
+    rocksdb_event_listener_t*);
+
+extern ROCKSDB_LIBRARY_API void rocksdb_event_listener_set_on_flush_completed(
+    rocksdb_event_listener_t*,
+    void (*on_flush_completed)(void*, const rocksdb_flushjobinfo_t*));
+
+extern ROCKSDB_LIBRARY_API const char* rocksdb_flushjobinfo_cf_name(
+    const rocksdb_flushjobinfo_t*);
+
+extern ROCKSDB_LIBRARY_API const char* rocksdb_flushjobinfo_file_path(
+    const rocksdb_flushjobinfo_t*);
+
+extern ROCKSDB_LIBRARY_API uint64_t
+rocksdb_flushjobinfo_smallest_seqno(const rocksdb_flushjobinfo_t*);
+
+extern ROCKSDB_LIBRARY_API uint64_t
+rocksdb_flushjobinfo_largest_seqno(const rocksdb_flushjobinfo_t*);
+
+extern ROCKSDB_LIBRARY_API rocksdb_flushreason_t
+rocksdb_flushjobinfo_flushreason(const rocksdb_flushjobinfo_t*);
+
+/* Merge Operator */
+
 extern ROCKSDB_LIBRARY_API void rocksdb_options_set_uint64add_merge_operator(
     rocksdb_options_t*);
 extern ROCKSDB_LIBRARY_API void rocksdb_options_set_compression_per_level(
