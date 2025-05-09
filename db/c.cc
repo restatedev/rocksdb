@@ -498,7 +498,8 @@ rocksdb_table_properties_collector_context_get_last_level_inclusive_max_seqno_th
 
 const char* rocksdb_table_properties_get_user_collected_property(
     const rocksdb_table_properties_t* table_properties, const char* key) {
-  auto properties = table_properties->rep->user_collected_properties;
+  UserCollectedProperties properties =
+      table_properties->rep->user_collected_properties;
   auto it = properties.find(std::string(key));
   if (it != properties.end()) {
     return strdup(it->second.c_str());
@@ -508,7 +509,8 @@ const char* rocksdb_table_properties_get_user_collected_property(
 
 const char** rocksdb_table_properties_get_user_collected_property_keys(
     const rocksdb_table_properties_t* table_properties, size_t* key_count) {
-  auto properties = table_properties->rep->user_collected_properties;
+  UserCollectedProperties properties =
+      table_properties->rep->user_collected_properties;
   *key_count = properties.size();
 
   if (properties.empty()) {
