@@ -506,6 +506,27 @@ const char* rocksdb_table_properties_get_user_collected_property(
   return nullptr;
 }
 
+const char** rocksdb_table_properties_get_user_collected_property_keys(
+    const rocksdb_table_properties_t* table_properties, size_t* key_count) {
+  auto properties = table_properties->rep->user_collected_properties;
+  *key_count = properties.size();
+
+  if (properties.empty()) {
+    return nullptr;
+  }
+
+  const char** keys =
+      static_cast<const char**>(malloc(*key_count * sizeof(char*)));
+
+  size_t i = 0;
+  for (const auto& kv : properties) {
+    keys[i] = strdup(kv.first.c_str());
+    i++;
+  }
+
+  return keys;
+}
+
 void rocksdb_table_properties_destroy(
     const rocksdb_table_properties_t* table_properties) {
   delete table_properties;
