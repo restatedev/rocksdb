@@ -479,6 +479,8 @@ class DBImpl : public DB {
   Status Flush(
       const FlushOptions& options,
       const std::vector<ColumnFamilyHandle*>& column_families) override;
+  Status FlushForCheckpointExport(const FlushOptions& options,
+                                  ColumnFamilyHandle* column_family);
   Status FlushWAL(bool sync) override {
     // TODO: plumb Env::IOActivity, Env::IOPriority
     return FlushWAL(WriteOptions(), sync);

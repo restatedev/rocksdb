@@ -21,6 +21,7 @@ public enum FlushReason {
   ERROR_RECOVERY_RETRY_FLUSH((byte) 0x0c),
   WAL_FULL((byte) 0x0d),
   CATCH_UP_AFTER_ERROR_RECOVERY((byte) 0x0e);
+  CHECKPOINT_EXPORT((byte) 0x0f);
 
   private final byte value;
 

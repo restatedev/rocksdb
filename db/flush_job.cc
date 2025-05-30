@@ -79,6 +79,8 @@ const char* GetFlushReasonString(FlushReason flush_reason) {
       return "Error Recovery Retry Flush";
     case FlushReason::kWalFull:
       return "WAL Full";
+    case FlushReason::kCheckpointExport:
+      return "Checkpoint Export";
     case FlushReason::kCatchUpAfterErrorRecovery:
       return "Catch Up After Error Recovery";
     default:

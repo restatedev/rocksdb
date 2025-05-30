@@ -2019,6 +2019,26 @@ Status DBImpl::Flush(const FlushOptions& flush_options,
   return s;
 }
 
+Status DBImpl::FlushForCheckpointExport(const FlushOptions& flush_options,
+                                        ColumnFamilyHandle* column_family) {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(column_family);
+  ROCKS_LOG_INFO(immutable_db_options_.info_log,
+                 "[%s] Checkpoint export flush start.", cfh->GetName().c_str());
+  Status s;
+  if (immutable_db_options_.atomic_flush) {
+    s = AtomicFlushMemTables(flush_options, FlushReason::kCheckpointExport,
+                             {cfh->cfd()});
+  } else {
+    s = FlushMemTable(cfh->cfd(), flush_options,
+                      FlushReason::kCheckpointExport);
+  }
+
+  ROCKS_LOG_INFO(immutable_db_options_.info_log,
+                 "[%s] Checkpoint export flush finished, status: %s\n",
+                 cfh->GetName().c_str(), s.ToString().c_str());
+  return s;
+}
+
 Status DBImpl::RunManualCompaction(
     ColumnFamilyData* cfd, int input_level, int output_level,
     const CompactRangeOptions& compact_range_options, const Slice* begin,
@@ -2757,11 +2777,17 @@ Status DBImpl::WaitForFlushMemTables(
                  (flush_memtable_ids[i] != nullptr &&
                   cfds[i]->imm()->GetEarliestMemTableID() >
                       *flush_memtable_ids[i])) {
-        // Make file ingestion's flush wait until SuperVersion is also updated
-        // since after flush, it does range overlapping check and file level
-        // assignment with the current SuperVersion.
+        // Make file ingestion and checkpoint export flushes wait until
+        // SuperVersion is also updated. For file ingestion, after flush, it
+        // does range overlapping check and file level assignment with the
+        // current SuperVersion.
+        //
+        // For Checkpoint export flush, we wait until SuperVersion is updated to
+        // avoid a race condition where GetColumnFamilyMetaData observes the old
+        // version.
         if (!flush_reason.has_value() ||
-            flush_reason.value() != FlushReason::kExternalFileIngestion ||
+            (flush_reason.value() != FlushReason::kExternalFileIngestion &&
+             flush_reason.value() != FlushReason::kCheckpointExport) ||
             cfds[i]->GetSuperVersion()->imm->GetID() ==
                 cfds[i]->imm()->current()->GetID()) {
           ++num_finished;

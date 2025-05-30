@@ -16,6 +16,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "db/db_impl/db_impl.h"
 #include "db/wal_manager.h"
 #include "file/file_util.h"
 #include "file/filename.h"
@@ -340,7 +341,11 @@ Status CheckpointImpl::ExportColumnFamily(
   s = db_->GetEnv()->CreateDir(tmp_export_dir);
 
   if (s.ok()) {
-    s = db_->Flush(ROCKSDB_NAMESPACE::FlushOptions(), handle);
+    DBImpl* db_impl_ = static_cast_with_check<DBImpl>(db_);
+    // Checkpoint export-specific flush is required to ensure that
+    // ExportFilesInMetaData below will observe the latest CF metadata.
+    s = db_impl_->FlushForCheckpointExport(ROCKSDB_NAMESPACE::FlushOptions(),
+                                           handle);
   }
 
   ColumnFamilyMetaData db_metadata;
