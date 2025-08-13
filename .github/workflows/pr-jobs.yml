@@ -1,5 +1,11 @@
-name: facebook/rocksdb/pr-jobs
-on: [push, pull_request]
+name: restatedev/rocksdb/pr-jobs
+on:
+  push:
+    branches:
+      - 'restate-*'
+  pull_request:
+    branches:
+      - 'restate-*'
 permissions: {}
 jobs:
   # NOTE: multiple workflows would be recommended, but the current GHA UI in
@@ -8,7 +14,7 @@ jobs:
   # workflow minimizes the problem because it will be suspicious if there are
   # no GHA results.
   #
-  # The if: ${{ github.repository_owner == 'facebook' }} lines prevent the
+  # The if: ${{ github.repository_owner == 'restatedev' }} lines prevent the
   # jobs from attempting to run on repo forks, because of a few problems:
   # * runs-on labels are repository (owner) specific, so the job might wait
   # for days waiting for a runner that simply isn't available.
@@ -30,8 +36,8 @@ jobs:
 
   # ======================== Fast Initial Checks ====================== #
   check-format-and-targets:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on: ubuntu-24.04
+    if: ${{ github.repository_owner == 'restatedev' }}
+    runs-on: warp-ubuntu-latest-x64-4x-spot
     steps:
     - uses: actions/checkout@v4.1.0
       with:
@@ -62,9 +68,8 @@ jobs:
         SANITY_CHECK=1 LONG_TEST=1 tools/check_format_compatible.sh
   # ========================= Linux With Tests ======================== #
   build-linux:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: ${{ github.repository_owner == 'restatedev' }}
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -74,9 +79,8 @@ jobs:
     - run: make V=1 J=32 -j32 check
     - uses: "./.github/actions/post-steps"
   build-linux-cmake-mingw:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 4-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-4x
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -93,9 +97,8 @@ jobs:
         mkdir build && cd build && cmake -DJNI=1 -DWITH_GFLAGS=OFF .. -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ -DCMAKE_SYSTEM_NAME=Windows && make -j4 rocksdb rocksdbjni
     - uses: "./.github/actions/post-steps"
   build-linux-cmake-with-folly:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: ${{ github.repository_owner == 'restatedev' }}
+    runs-on: warp-ubuntu-latest-x64-16x
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -110,9 +113,8 @@ jobs:
     - run: "(mkdir build && cd build && cmake -DUSE_FOLLY=1 -DWITH_GFLAGS=1 -DROCKSDB_BUILD_SHARED=0 .. && make V=1 -j20 && ctest -j20)"
     - uses: "./.github/actions/post-steps"
   build-linux-make-with-folly:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -127,9 +129,8 @@ jobs:
     - run: USE_FOLLY=1 LIB_MODE=static V=1 make -j32 check
     - uses: "./.github/actions/post-steps"
   build-linux-make-with-folly-lite-no-test:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -143,9 +144,8 @@ jobs:
     - run: USE_FOLLY_LITE=1 V=1 make -j32 all
     - uses: "./.github/actions/post-steps"
   build-linux-cmake-with-folly-coroutines:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -160,9 +160,8 @@ jobs:
     - run: "(mkdir build && cd build && cmake -DUSE_COROUTINES=1 -DWITH_GFLAGS=1 -DROCKSDB_BUILD_SHARED=0 .. && make V=1 -j20 && ctest -j20)"
     - uses: "./.github/actions/post-steps"
   build-linux-cmake-with-benchmark:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -172,9 +171,8 @@ jobs:
     - run: mkdir build && cd build && cmake -DWITH_GFLAGS=1 -DWITH_BENCHMARK=1 .. && make V=1 -j20 && ctest -j20
     - uses: "./.github/actions/post-steps"
   build-linux-encrypted_env-no_compression:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -186,9 +184,8 @@ jobs:
     - uses: "./.github/actions/post-steps"
   # ======================== Linux No Test Runs ======================= #
   build-linux-release:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: ${{ github.repository_owner == 'restatedev' }}
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -212,9 +209,9 @@ jobs:
     - run: if ./db_stress --version; then false; else true; fi
     - uses: "./.github/actions/post-steps"
   build-linux-release-rtti:
-    if: ${{ github.repository_owner == 'facebook' }}
+    if: false
     runs-on:
-      labels: 8-core-ubuntu
+      labels: warp-ubuntu-latest-x64-8x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -227,9 +224,8 @@ jobs:
     - run: USE_RTTI=1 DEBUG_LEVEL=0 make V=1 -j16 static_lib tools db_bench
     - run: if ./db_stress --version; then false; else true; fi
   build-linux-clang-no_test_run:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 8-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-8x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -238,9 +234,8 @@ jobs:
     - run: CC=clang CXX=clang++ USE_CLANG=1 PORTABLE=1 make V=1 -j16 all
     - uses: "./.github/actions/post-steps"
   build-linux-clang-13-no_test_run:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -250,9 +245,8 @@ jobs:
     - run: CC=clang-13 CXX=clang++-13 USE_CLANG=1 make -j32 all microbench
     - uses: "./.github/actions/post-steps"
   build-linux-gcc-8-no_test_run:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -262,9 +256,8 @@ jobs:
     - run: CC=gcc-8 CXX=g++-8 V=1 make -j32 all
     - uses: "./.github/actions/post-steps"
   build-linux-gcc-10-cxx20-no_test_run:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -276,9 +269,8 @@ jobs:
 
   # ======================== Linux Other Checks ======================= #
   build-linux-clang10-clang-analyze:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: ${{ github.repository_owner == 'restatedev' }}
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -295,9 +287,8 @@ jobs:
         name: scan-build-report
         path: scan_build_report.tar.gz
   build-linux-unity-and-headers:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 4-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-4x-spot
     container:
       image: gcc:latest
       options: --shm-size=16gb
@@ -309,9 +300,8 @@ jobs:
     - run: make V=1 -j8 -k check-headers
     - uses: "./.github/actions/post-steps"
   build-linux-mini-crashtest:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 4-core-ubuntu
+    if: ${{ github.repository_owner == 'restatedev' }}
+    runs-on: warp-ubuntu-latest-x64-4x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -321,10 +311,9 @@ jobs:
     - run: ulimit -S -n `ulimit -H -n` && make V=1 -j8 CRASH_TEST_EXT_ARGS='--duration=960 --max_key=2500000' blackbox_crash_test_with_atomic_flush
     - uses: "./.github/actions/post-steps"
   # ======================= Linux with Sanitizers ===================== #
-  build-linux-clang10-asan:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 32-core-ubuntu
+  build-linux-clang10-asan-ubsan:
+    if: ${{ github.repository_owner == 'restatedev' }}
+    runs-on: warp-ubuntu-latest-x64-32x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -334,9 +323,9 @@ jobs:
     - run: COMPILE_WITH_ASAN=1 CC=clang-10 CXX=clang++-10 ROCKSDB_DISABLE_ALIGNED_NEW=1 USE_CLANG=1 make V=1 -j32 check
     - uses: "./.github/actions/post-steps"
   build-linux-clang10-ubsan:
-    if: ${{ github.repository_owner == 'facebook' }}
+    if: ${{ github.repository_owner == 'restatedev' }}
     runs-on:
-      labels: 16-core-ubuntu
+      labels: warp-ubuntu-latest-x64-8x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -346,9 +335,8 @@ jobs:
     - run: COMPILE_WITH_UBSAN=1 CC=clang-10 CXX=clang++-10 ROCKSDB_DISABLE_ALIGNED_NEW=1 USE_CLANG=1 make V=1 -j32 ubsan_check
     - uses: "./.github/actions/post-steps"
   build-linux-clang13-mini-tsan:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 32-core-ubuntu
+    if: ${{ github.repository_owner == 'restatedev' }}
+    runs-on: warp-ubuntu-latest-x64-32x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -358,9 +346,8 @@ jobs:
     - run: COMPILE_WITH_TSAN=1 CC=clang-13 CXX=clang++-13 ROCKSDB_DISABLE_ALIGNED_NEW=1 USE_CLANG=1 make V=1 -j32 check
     - uses: "./.github/actions/post-steps"
   build-linux-static_lib-alt_namespace-status_checked:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 16-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-16x-spot
     container:
       image: zjay437/rocksdb:0.6
       options: --shm-size=16gb
@@ -371,8 +358,8 @@ jobs:
     - uses: "./.github/actions/post-steps"
   # ========================= MacOS build only ======================== #
   build-macos:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on: macos-13
+    if: false
+    runs-on: warp-macos-13-arm64-6x-spot
     env:
       ROCKSDB_DISABLE_JEMALLOC: 1
     steps:
@@ -388,8 +375,8 @@ jobs:
     - uses: "./.github/actions/post-steps"
   # ========================= MacOS with Tests ======================== #
   build-macos-cmake:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on: macos-13
+    if: false
+    runs-on: warp-macos-13-arm64-6x-spot
     strategy:
       matrix:
         run_even_tests: [true, false]
@@ -415,8 +402,8 @@ jobs:
   # ======================== Windows with Tests ======================= #
   # NOTE: some windows jobs are in "nightly" to save resources
   build-windows-vs2022:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on: windows-2022
+    if: false
+    runs-on: warp-windows-latest-x64-4x-spot
     env:
       CMAKE_GENERATOR: Visual Studio 17 2022
       CMAKE_PORTABLE: 1
@@ -424,10 +411,10 @@ jobs:
     - uses: actions/checkout@v4.1.0
     - uses: "./.github/actions/windows-build-steps"
   # ============================ Java Jobs ============================ #
+  # restatedev: Checkout issues - missing GH_TOKEN
   build-linux-java:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 4-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-4x-spot
     container:
       image: evolvedbinary/rocksjava:centos7_x64-be
       options: --shm-size=16gb
@@ -453,9 +440,8 @@ jobs:
       run: scl enable devtoolset-7 'make V=1 J=8 -j8 jtest'
     # NOTE: post-steps skipped because of compatibility issues with docker image
   build-linux-java-static:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 4-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-4x-spot
     container:
       image: evolvedbinary/rocksjava:centos7_x64-be
       options: --shm-size=16gb
@@ -481,8 +467,8 @@ jobs:
       run: scl enable devtoolset-7 'make V=1 J=8 -j8 rocksdbjavastatic'
     # NOTE: post-steps skipped because of compatibility issues with docker image
   build-macos-java:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on: macos-13
+    if: false
+    runs-on: warp-macos-13-arm64-6x-spot
     env:
       JAVA_HOME: "/Library/Java/JavaVirtualMachines/liberica-jdk-8.jdk/Contents/Home"
       ROCKSDB_DISABLE_JEMALLOC: 1
@@ -504,8 +490,8 @@ jobs:
       run: make V=1 J=16 -j16 jtest
     - uses: "./.github/actions/post-steps"
   build-macos-java-static:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on: macos-13
+    if: false
+    runs-on: warp-macos-13-arm64-6x-spot
     env:
       JAVA_HOME: "/Library/Java/JavaVirtualMachines/liberica-jdk-8.jdk/Contents/Home"
     steps:
@@ -526,8 +512,8 @@ jobs:
       run: make V=1 J=16 -j16 rocksdbjavastaticosx
     - uses: "./.github/actions/post-steps"
   build-macos-java-static-universal:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on: macos-13
+    if: false
+    runs-on: warp-macos-13-arm64-6x-spot
     env:
       JAVA_HOME: "/Library/Java/JavaVirtualMachines/liberica-jdk-8.jdk/Contents/Home"
     steps:
@@ -548,9 +534,8 @@ jobs:
       run: make V=1 J=16 -j16 rocksdbjavastaticosx_ub
     - uses: "./.github/actions/post-steps"
   build-linux-java-pmd:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 4-core-ubuntu
+    if: false
+    runs-on: warp-ubuntu-latest-x64-4x-spot
     container:
       image: evolvedbinary/rocksjava:alpine3_x64-be
       options: --shm-size=16gb
@@ -574,9 +559,8 @@ jobs:
         name: maven-site
         path: "${{ github.workspace }}/java/target/site"
   build-linux-arm:
-    if: ${{ github.repository_owner == 'facebook' }}
-    runs-on:
-      labels: 4-core-ubuntu-arm
+    if: ${{ github.repository_owner == 'restatedev' }}
+    runs-on: warp-ubuntu-latest-arm64-4x-spot
     steps:
       - uses: actions/checkout@v4.1.0
       - uses: "./.github/actions/pre-steps"
