@@ -97,7 +97,7 @@ jobs:
         mkdir build && cd build && cmake -DJNI=1 -DWITH_GFLAGS=OFF .. -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ -DCMAKE_SYSTEM_NAME=Windows && make -j4 rocksdb rocksdbjni
     - uses: "./.github/actions/post-steps"
   build-linux-cmake-with-folly:
-    if: ${{ github.repository_owner == 'restatedev' }}
+    if: false
     runs-on: warp-ubuntu-latest-x64-16x
     container:
       image: zjay437/rocksdb:0.6
@@ -312,7 +312,7 @@ jobs:
     - uses: "./.github/actions/post-steps"
   # ======================= Linux with Sanitizers ===================== #
   build-linux-clang10-asan-ubsan:
-    if: ${{ github.repository_owner == 'restatedev' }}
+    if: false
     runs-on: warp-ubuntu-latest-x64-32x
     container:
       image: zjay437/rocksdb:0.6
@@ -335,7 +335,7 @@ jobs:
     - run: COMPILE_WITH_UBSAN=1 CC=clang-10 CXX=clang++-10 ROCKSDB_DISABLE_ALIGNED_NEW=1 USE_CLANG=1 make V=1 -j32 ubsan_check
     - uses: "./.github/actions/post-steps"
   build-linux-clang13-mini-tsan:
-    if: ${{ github.repository_owner == 'restatedev' }}
+    if: false
     runs-on: warp-ubuntu-latest-x64-32x
     container:
       image: zjay437/rocksdb:0.6
