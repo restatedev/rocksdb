@@ -1994,7 +1994,7 @@ rocksdb_table_properties_collector_create(
     bool (*finish)(void*, rocksdb_user_collected_properties_t* properties),
     void (*get_readable_properties)(
         void*, rocksdb_user_collected_properties_t* properties),
-    const char* (*name)(void*));
+    const char* (*name)(void*), bool (*need_compact)(void*));
 
 extern ROCKSDB_LIBRARY_API uint32_t
 rocksdb_table_properties_collector_context_get_column_family_id(

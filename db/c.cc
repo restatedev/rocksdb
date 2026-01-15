@@ -414,6 +414,7 @@ struct rocksdb_table_properties_collector_t : public TablePropertiesCollector {
   void (*get_readable_properties_)(
       void*, rocksdb_user_collected_properties_t* properties);
   const char* (*name_)(void*);
+  bool (*need_compact_)(void*);
 
   rocksdb_table_properties_collector_t(
       void* state, void (*destructor)(void*),
@@ -424,7 +425,7 @@ struct rocksdb_table_properties_collector_t : public TablePropertiesCollector {
       bool (*finish)(void*, rocksdb_user_collected_properties_t* properties),
       void (*get_readable_properties)(
           void*, rocksdb_user_collected_properties_t* properties),
-      const char* (*name)(void*)) {
+      const char* (*name)(void*), bool (*need_compact)(void*)) {
     state_ = state;
     destructor_ = destructor;
     add_user_key_ = add_user_key;
@@ -432,6 +433,7 @@ struct rocksdb_table_properties_collector_t : public TablePropertiesCollector {
     finish_ = finish;
     get_readable_properties_ = get_readable_properties;
     name_ = name;
+    need_compact_ = need_compact;
   }
 
   ~rocksdb_table_properties_collector_t() override { (*destructor_)(state_); }
@@ -476,6 +478,13 @@ struct rocksdb_table_properties_collector_t : public TablePropertiesCollector {
   }
 
   const char* Name() const override { return (*name_)(state_); }
+
+  bool NeedCompact() const override {
+    if (need_compact_ != nullptr) {
+      return (*need_compact_)(state_);
+    }
+    return false;
+  }
 };
 
 struct rocksdb_table_properties_collector_factory_t
@@ -3889,10 +3898,10 @@ rocksdb_table_properties_collector_t* rocksdb_table_properties_collector_create(
     bool (*finish)(void*, rocksdb_user_collected_properties_t* properties),
     void (*get_readable_properties)(
         void*, rocksdb_user_collected_properties_t* properties),
-    const char* (*name)(void*)) {
+    const char* (*name)(void*), bool (*need_compact)(void*)) {
   return new rocksdb_table_properties_collector_t(
       state, destructor, add_user_key, block_add, finish,
-      get_readable_properties, name);
+      get_readable_properties, name, need_compact);
 }
 
 void rocksdb_options_add_table_properties_collector_factory(
