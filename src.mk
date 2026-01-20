@@ -31,6 +31,7 @@ LIB_SOURCES =                                                   \
   db/blob/prefetch_buffer_collection.cc                         \
   db/builder.cc                                                 \
   db/c.cc                                                       \
+  db/restate.cc                                                  \
   db/coalescing_iterator.cc                                     \
   db/column_family.cc                                           \
   db/compaction/compaction.cc                                   \
@@ -668,6 +669,7 @@ TEST_MAIN_SOURCES =                                                     \
 
 TEST_MAIN_SOURCES_C =                                                   \
   db/c_test.c                                                           \
+  db/restate_test.c                                                     \
 
 WITH_FAISS_TEST_MAIN_SOURCES =                                          \
   utilities/secondary_index/faiss_ivf_index_test.cc                     \
