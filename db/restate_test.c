@@ -624,6 +624,124 @@ int main(int argc, char** argv) {
     cf_handle = NULL;
   }
 
+  StartPhase("sstfilereader");
+  {
+    // Create an SST file using SstFileWriter
+    char sst_file_path[256];
+    snprintf(sst_file_path, sizeof(sst_file_path), "%s/test_sst_file.sst",
+             GetTempDir());
+
+    rocksdb_options_t* sst_options = rocksdb_options_create();
+    rocksdb_envoptions_t* env_options = rocksdb_envoptions_create();
+
+    rocksdb_sstfilewriter_t* writer =
+        rocksdb_sstfilewriter_create(env_options, sst_options);
+
+    rocksdb_sstfilewriter_open(writer, sst_file_path, &err);
+    CheckNoError(err);
+
+    // Write some key-value pairs
+    int i;
+    char key[32];
+    char val[64];
+    for (i = 0; i < 50; i++) {
+      snprintf(key, sizeof(key), "sst_key%06d", i);
+      snprintf(val, sizeof(val), "sst_value%06d", i);
+      rocksdb_sstfilewriter_put(writer, key, strlen(key), val, strlen(val),
+                                &err);
+      CheckNoError(err);
+    }
+
+    rocksdb_sstfilewriter_finish(writer, &err);
+    CheckNoError(err);
+
+    rocksdb_sstfilewriter_destroy(writer);
+
+    fprintf(stderr, "  Created SST file: %s\n", sst_file_path);
+
+    // Now read the SST file using SstFileReader
+    rocksdb_sstfilereader_t* reader = rocksdb_sstfilereader_create(sst_options);
+    CheckCondition(reader != NULL);
+
+    rocksdb_sstfilereader_open(reader, sst_file_path, &err);
+    CheckNoError(err);
+    fprintf(stderr, "  Opened SST file for reading\n");
+
+    // Verify checksum
+    rocksdb_sstfilereader_verify_checksum(reader, &err);
+    CheckNoError(err);
+    fprintf(stderr, "  Checksum verified\n");
+
+    // Get table properties
+    rocksdb_table_properties_t* props =
+        rocksdb_sstfilereader_get_table_properties(reader);
+    CheckCondition(props != NULL);
+
+    uint64_t num_entries = rocksdb_table_properties_get_num_entries(props);
+    fprintf(stderr, "  Num entries from SST: %" PRIu64 "\n", num_entries);
+    CheckCondition(num_entries == 50);
+
+    uint64_t data_size = rocksdb_table_properties_get_data_size(props);
+    fprintf(stderr, "  Data size: %" PRIu64 "\n", data_size);
+    CheckCondition(data_size > 0);
+
+    size_t comparator_len;
+    const char* comparator =
+        rocksdb_table_properties_get_comparator_name(props, &comparator_len);
+    fprintf(stderr, "  Comparator: %.*s\n", (int)comparator_len, comparator);
+    CheckCondition(comparator != NULL);
+
+    // The caller owns this pointer, so we must destroy it
+    rocksdb_table_properties_destroy(props);
+    fprintf(stderr, "  Properties destroyed\n");
+
+    // Test iterator over SST file
+    rocksdb_readoptions_t* sst_roptions = rocksdb_readoptions_create();
+    rocksdb_iterator_t* iter =
+        rocksdb_sstfilereader_new_iterator(reader, sst_roptions);
+    CheckCondition(iter != NULL);
+
+    // Count entries using iterator
+    int count = 0;
+    rocksdb_iter_seek_to_first(iter);
+    while (rocksdb_iter_valid(iter)) {
+      count++;
+      rocksdb_iter_next(iter);
+    }
+    fprintf(stderr, "  Iterator counted %d entries\n", count);
+    CheckCondition(count == 50);
+
+    // Verify first and last keys
+    rocksdb_iter_seek_to_first(iter);
+    CheckCondition(rocksdb_iter_valid(iter));
+    size_t key_len;
+    const char* first_key = rocksdb_iter_key(iter, &key_len);
+    fprintf(stderr, "  First key: %.*s\n", (int)key_len, first_key);
+    CheckCondition(key_len == strlen("sst_key000000"));
+    CheckCondition(memcmp(first_key, "sst_key000000", key_len) == 0);
+
+    rocksdb_iter_seek_to_last(iter);
+    CheckCondition(rocksdb_iter_valid(iter));
+    const char* last_key = rocksdb_iter_key(iter, &key_len);
+    fprintf(stderr, "  Last key: %.*s\n", (int)key_len, last_key);
+    CheckCondition(key_len == strlen("sst_key000049"));
+    CheckCondition(memcmp(last_key, "sst_key000049", key_len) == 0);
+
+    rocksdb_iter_destroy(iter);
+    rocksdb_readoptions_destroy(sst_roptions);
+
+    // Clean up reader
+    rocksdb_sstfilereader_destroy(reader);
+    fprintf(stderr, "  SST reader destroyed\n");
+
+    // Clean up options and files
+    rocksdb_envoptions_destroy(env_options);
+    rocksdb_options_destroy(sst_options);
+
+    // Remove the test SST file
+    remove(sst_file_path);
+  }
+
   StartPhase("cleanup");
   if (cf_handle != NULL) {
     rocksdb_column_family_handle_destroy(cf_handle);
