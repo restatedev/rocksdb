@@ -5765,6 +5765,21 @@ void rocksdb_readoptions_set_auto_readahead_size(rocksdb_readoptions_t* opt,
   opt->rep.auto_readahead_size = v;
 }
 
+void rocksdb_readoptions_set_table_filter(
+    rocksdb_readoptions_t* opt, void* state,
+    unsigned char (*table_filter)(void*,
+                                  const rocksdb_table_properties_t*),
+    void (*destroy)(void*)) {
+  auto shared_state =
+      std::shared_ptr<void>(state, destroy ? destroy : [](void*) {});
+  opt->rep.table_filter =
+      [shared_state, table_filter](const TableProperties& props) -> bool {
+    rocksdb_table_properties_t c_props;
+    c_props.rep = &props;
+    return table_filter(shared_state.get(), &c_props);
+  };
+}
+
 rocksdb_writeoptions_t* rocksdb_writeoptions_create() {
   return new rocksdb_writeoptions_t;
 }

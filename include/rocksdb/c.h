@@ -2350,6 +2350,11 @@ extern ROCKSDB_LIBRARY_API void rocksdb_readoptions_set_iter_start_ts(
 extern ROCKSDB_LIBRARY_API void rocksdb_readoptions_set_auto_readahead_size(
     rocksdb_readoptions_t*, unsigned char);
 
+extern ROCKSDB_LIBRARY_API void rocksdb_readoptions_set_table_filter(
+    rocksdb_readoptions_t*, void* state,
+    unsigned char (*table_filter)(void*, const rocksdb_table_properties_t*),
+    void (*destroy)(void*));
+
 /* Write options */
 
 extern ROCKSDB_LIBRARY_API rocksdb_writeoptions_t* rocksdb_writeoptions_create(
